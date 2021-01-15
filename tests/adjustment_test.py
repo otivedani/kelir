@@ -26,10 +26,10 @@ class TestThreeway(unittest.TestCase):
 
     def test_all_channel(self):
         points = [
-            [[128,129]], # a bit bright
             [[0,2], [128,129]],
             [[127,128], [255,253]],
-            [[255,253], [0,2], [128,129] ]
+            [[255,253], [0,2], [128,129]],
+            [[128,130]], # a bit overall bright
         ]
         adjustment.curves(self.imgdata, points)
     
