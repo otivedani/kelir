@@ -4,7 +4,7 @@ from PIL import Image
 from synciro import adjustment
 
 
-class TestThreeway(unittest.TestCase):
+class TestCurves(unittest.TestCase):
 
     def setUp(self):
         with Image.open('tests/sample_image/test_0.jpg') as img:
