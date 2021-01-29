@@ -47,13 +47,14 @@ def adjust_curves(image, points):
 
 def _prep_pairs(p):
     # create and check
-    pt = np.array(p, dtype=np.uint8)
+    pt = np.asarray(p, dtype=np.uint8)
     assert(pt.shape[-1]==2)
-    # sort
-    pt = pt[np.argsort(pt[:,0])]
+    # sort and remove duplicates in x
+    _pt, i = np.unique(pt[:,0], return_index=True)
+    pt = pt[i]
     # all x begin with 0, and 255. if not any, fill with 0,0 or 0,255
-    if not np.any(pt[:,0] == 0): pt = np.vstack(([0,0], pt))
-    if not np.any(pt[:,0] == 255): pt = np.vstack((pt, [255,255]))
+    if _pt[0]  !=   0: pt = np.vstack(([0,0], pt))
+    if _pt[-1] != 255: pt = np.vstack((pt, [255,255]))
     
     return pt
 

@@ -49,6 +49,19 @@ class TestCurves(unittest.TestCase):
                 [[0,2,2], [128,129,1]], # 3D
             ]
             adjustment.curves(self.imgdata, points)
+
+    def test_unique_points(self):
+        points = [
+            [[128,129]],
+            [[128,129],[128,170]],
+            [[0,2],[0,9],[128,129]],
+        ]
+        for pt in points:
+            _pt = adjustment._prep_pairs(pt)
+            self.assertTrue(np.any(np.unique(_pt[:,0], return_counts=True)[1] == 1))
+
+        with self.assertRaises(ValueError):
+            adjustment._prep_pairs(points)
     
     def tearDown(self):
         del self.imgdata
