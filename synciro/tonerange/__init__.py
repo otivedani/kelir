@@ -1,1 +1,2 @@
-from .tritone import split_tritone, _split
+from .tritone import _split
+from .tritone import split_tritone
