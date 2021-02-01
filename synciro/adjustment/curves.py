@@ -1,5 +1,5 @@
 import numpy as np
-from scipy import interpolate
+from scipy.interpolate import interp1d
 
 """
 Apply curves to image
@@ -16,15 +16,20 @@ param :
 """
 
 
-def adjust_curves(image, points):
+def adjust_curves(image, points, mode='precise'):
+    _CURVES_STRATS_ = {1, 3, 4}
+    _CURVES_MODES_ = {
+        'precise': _fit_precise,  # unclosed, fill with first-last
+        'closed': _fit_closed,  # closed, fill with linear
+        'extrapolate': _fit_extrapolate,  # unclosed, fill with extrapolation
+    }
+
     strat = len(points)
-    assert(strat in {1, 3, 4})
+    assert(strat in _CURVES_STRATS_)
+    assert(mode in _CURVES_MODES_.keys())
 
     # points to interpolate
-    pts_vec = [_prep_pairs(p) for p in points]
-
-    # interpolation functions
-    curves_f = [interpolate.interp1d(pt_v[:, 0], pt_v[:, 1], kind='quadratic') for pt_v in pts_vec]
+    curves_f = [_CURVES_MODES_[mode](p) for p in points]
 
     # prepare output
     out_image = image.copy()
@@ -46,17 +51,42 @@ def adjust_curves(image, points):
     return out_image.astype(image.dtype)
 
 
-def _prep_pairs(p):
+def _prep_pairs(p, close_range=False):
     # create and check
     pt = np.asarray(p, dtype=np.uint8)
     assert(pt.shape[-1] == 2)
     # sort and remove duplicates in x
     _pt, i = np.unique(pt[:, 0], return_index=True)
     pt = pt[i]
-    # all x begin with 0, and 255. if not any, fill with 0, 0 or 0, 255
-    if _pt[0] != 0:
-        pt = np.vstack(([0, 0], pt))
-    if _pt[-1] != 255:
-        pt = np.vstack((pt, [255, 255]))
+
+    if close_range:  # begin with 0, end with 255
+        if _pt[0] != 0:
+            pt = np.vstack(([0, 0], pt))
+        if _pt[-1] != 255:
+            pt = np.vstack((pt, [255, 255]))
 
     return pt
+
+
+# unclosed, fill with first-last
+def _fit_precise(points):
+    pt_v = _prep_pairs(points, close_range=False)
+    return interp1d(pt_v[:, 0], pt_v[:, 1],
+                    kind=('quadratic' if pt_v.shape[0] > 2 else 'linear'),
+                    bounds_error=False, fill_value=(pt_v[0, 1], pt_v[-1, 1]))
+
+
+# closed, fill with linear
+def _fit_closed(points):
+    pt_v = _prep_pairs(points, close_range=True)
+    return interp1d(pt_v[:, 0], pt_v[:, 1],
+                    kind=('quadratic' if pt_v.shape[0] > 2 else 'linear'),
+                    bounds_error=False, fill_value=(pt_v[0, 1], pt_v[-1, 1]))
+
+
+# unclosed, fill with extrapolation
+def _fit_extrapolate(points):
+    pt_v = _prep_pairs(points, close_range=False)
+    return interp1d(pt_v[:, 0], pt_v[:, 1],
+                    kind=('quadratic' if pt_v.shape[0] > 2 else 'linear'),
+                    fill_value='extrapolate')
