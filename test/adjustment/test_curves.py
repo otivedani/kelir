@@ -14,7 +14,7 @@ class TestCurves(unittest.TestCase):
             [[5, 10], [250, 230]],
         ]
 
-        with Image.open('tests/sample_image/test_0.jpg') as image:
+        with Image.open('test/sample_image/test_0.jpg') as image:
             self.image = np.asarray(image)
 
     def test_all_channel(self):

@@ -7,7 +7,7 @@ import unittest
 class TestEcdf(unittest.TestCase):
 
     def setUp(self):
-        with Image.open('tests/sample_image/test_0.jpg') as img:
+        with Image.open('test/sample_image/test_0.jpg') as img:
             self.imgdata = np.asarray(img)
 
     def test_stats(self):
