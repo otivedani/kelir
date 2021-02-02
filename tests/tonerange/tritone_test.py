@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-from synciro import tonerange
+from kelir import tonerange
 import unittest
 
 

@@ -1,0 +1,7 @@
+numpy=1.20.0
+matplotlib
+opencv
+py-opencv
+pillow
+scikit-learn
+scipy

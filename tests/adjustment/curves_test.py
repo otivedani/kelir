@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-from synciro import adjustment
+from kelir import adjustment
 import unittest
 
 
