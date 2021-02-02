@@ -39,6 +39,9 @@ class TestCurves(unittest.TestCase):
         self.assertTrue(np.all(resimg_1c[self.image == 0] == 0))
         self.assertTrue(np.all(resimg_1c[self.image == 255] == 255))
 
+        # closed mode : pad with 0,0 and 255,255
+        adjustment.curves(self.image, self.points[:-1], mode='closed')
+
     def test_ineq_channel(self):
         with self.assertRaises(AssertionError):
             adjustment.curves(self.image, self.points[:2])

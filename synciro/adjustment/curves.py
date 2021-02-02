@@ -1,27 +1,40 @@
 import numpy as np
+from typing import Union, Callable
 from scipy.interpolate import interp1d
 
-"""
-Apply curves to image
 
-param :
-    - image : numpy array, with shape (width, height, 3)
-    - points : list of each channel curve points (x, y)
-        ~ len(points) must be either :
-            - 1 (equal adjust to all channel)
-            - 3 (respective adjust to each channel)
-            - 4 (respective adjust each and all channel)
-        ~ len(points[i]) keep it < 16 for best result
-        ~ len(points[i][j]) is a pair of points [x, y]
-"""
-
-
-def adjust_curves(image, points, mode='precise'):
+def adjust_curves(image: np.ndarray,
+                  points: Union[np.ndarray, list],
+                  mode: str = 'precise') -> np.ndarray:
+    """Apply curves based on points to vectors
+    
+    Parameters
+    ----------
+    image : ndarray
+        image to be applied with curves function
+        can be used for other than image
+        array shape is (any, channel)
+    points : array_like
+        1 or 3 or 4 list of curve points
+            1 - equal adjust to all channel
+            3 - respective adjust to each channel
+            4 - respective adjust each and all channel
+        points shape is ({1,3,4}, any, 2)
+    mode : {'precise', 'closed', 'extrapolate'}, optional
+        interpolation method for fitting curves to points
+            'precise' - unclosed, out of x will be filled with first-last
+            'closed' - closed, extrapolate to 0,0 and 255,255
+            'extrapolate' - unclosed, extrapolate to outer range (then clipped)
+    
+    Returns
+    -------
+        copy of input ndarray, each channel applied with each curves
+    """
     _CURVES_STRATS_ = {1, 3, 4}
     _CURVES_MODES_ = {
-        'precise': _fit_precise,  # unclosed, fill with first-last
-        'closed': _fit_closed,  # closed, fill with linear
-        'extrapolate': _fit_extrapolate,  # unclosed, fill with extrapolation
+        'precise': _fit_precise,
+        'closed': _fit_closed,
+        'extrapolate': _fit_extrapolate,
     }
 
     strat = len(points)
@@ -51,7 +64,8 @@ def adjust_curves(image, points, mode='precise'):
     return out_image.astype(image.dtype)
 
 
-def _prep_pairs(p, close_range=False):
+def _prep_pairs(p: list, close_range: Union[tuple, None] = None) -> np.ndarray:
+    """Prepare pair of points"""
     # create and check
     pt = np.asarray(p, dtype=np.uint8)
     assert(pt.shape[-1] == 2)
@@ -59,34 +73,34 @@ def _prep_pairs(p, close_range=False):
     _pt, i = np.unique(pt[:, 0], return_index=True)
     pt = pt[i]
 
-    if close_range:  # begin with 0, end with 255
+    if close_range is not None:  # begin with 0, end with 255
         if _pt[0] != 0:
-            pt = np.vstack(([0, 0], pt))
+            pt = np.vstack(([close_range[0], close_range[0]], pt))
         if _pt[-1] != 255:
-            pt = np.vstack((pt, [255, 255]))
+            pt = np.vstack((pt, [close_range[1], close_range[1]]))
 
     return pt
 
 
-# unclosed, fill with first-last
-def _fit_precise(points):
-    pt_v = _prep_pairs(points, close_range=False)
+def _fit_precise(points: np.ndarray) -> Callable[[np.ndarray], np.ndarray]:
+    """Create functions from interpolating points, unclosed, fill with y_first, y_last"""
+    pt_v = _prep_pairs(points)
     return interp1d(pt_v[:, 0], pt_v[:, 1],
                     kind=('quadratic' if pt_v.shape[0] > 2 else 'linear'),
                     bounds_error=False, fill_value=(pt_v[0, 1], pt_v[-1, 1]))
 
 
-# closed, fill with linear
-def _fit_closed(points):
-    pt_v = _prep_pairs(points, close_range=True)
+def _fit_closed(points: np.ndarray) -> Callable[[np.ndarray], np.ndarray]:
+    """Create functions from interpolating points, closed bounds, extrapolate to bounds"""
+    pt_v = _prep_pairs(points, close_range=(0,255))
     return interp1d(pt_v[:, 0], pt_v[:, 1],
                     kind=('quadratic' if pt_v.shape[0] > 2 else 'linear'),
                     bounds_error=False, fill_value=(pt_v[0, 1], pt_v[-1, 1]))
 
 
-# unclosed, fill with extrapolation
-def _fit_extrapolate(points):
-    pt_v = _prep_pairs(points, close_range=False)
+def _fit_extrapolate(points: np.ndarray) -> Callable[[np.ndarray], np.ndarray]:
+    """Create functions from interpolating points, unclosed, extrapolate to outer bounds"""
+    pt_v = _prep_pairs(points)
     return interp1d(pt_v[:, 0], pt_v[:, 1],
                     kind=('quadratic' if pt_v.shape[0] > 2 else 'linear'),
                     fill_value='extrapolate')
