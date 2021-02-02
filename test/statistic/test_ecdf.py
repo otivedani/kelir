@@ -1,6 +1,6 @@
+from kelir import statistic
 import numpy as np
 from PIL import Image
-from kelir import statistic
 import unittest
 
 
@@ -12,8 +12,8 @@ class TestEcdf(unittest.TestCase):
 
     def test_stats(self):
         x, y = statistic.ecdf(self.imgdata)
-        self.assertEqual(y.shape[0], self.imgdata.shape[0]*self.imgdata.shape[1])
-        self.assertEqual(x.shape[-1], self.imgdata.shape[0]*self.imgdata.shape[1])
+        self.assertEqual(y.shape[0], self.imgdata.shape[0] * self.imgdata.shape[1])
+        self.assertEqual(x.shape[-1], self.imgdata.shape[0] * self.imgdata.shape[1])
         self.assertEqual(x.shape[0], self.imgdata.shape[-1])
         self.assertTrue(np.all(np.min(x, axis=1) == self.imgdata.min(axis=(0, 1))))
         self.assertTrue(np.all(np.max(x, axis=1) == self.imgdata.max(axis=(0, 1))))

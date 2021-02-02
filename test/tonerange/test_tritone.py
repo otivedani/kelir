@@ -1,10 +1,10 @@
+from kelir import tonerange
 import numpy as np
 from PIL import Image
-from kelir import tonerange
 import unittest
 
 
-class Testsplit_tritone(unittest.TestCase):
+class TestSplit_Tritone(unittest.TestCase):
 
     def setUp(self):
         with Image.open('test/sample_image/test_0.jpg') as img:
@@ -49,7 +49,7 @@ class Testsplit_tritone(unittest.TestCase):
 
         case_a = tonerange._split(self.imgdata, midrange=((70, 125), (80, 135), (90, 145)))
         case_b = tonerange._split(self.imgdata.reshape(-1, self.imgdata.shape[-1]), midrange=((70, 125), (80, 135), (90, 145)))
-        case_c = tonerange._split(self.imgdata.reshape(10, self.imgdata.shape[0]//10, self.imgdata.shape[1], self.imgdata.shape[2], ), midrange=((70, 125)))
+        case_c = tonerange._split(self.imgdata.reshape(10, self.imgdata.shape[0] // 10, self.imgdata.shape[1], self.imgdata.shape[2], ), midrange=((70, 125)))
         for a, b in zip(case_a, case_b):
             self.assertTrue(np.all(a.ravel() == b.ravel()))
         self.assertTrue(np.all(case_a[0][:, :, 0].ravel() == case_c[0][:, :, :, 0].ravel()))

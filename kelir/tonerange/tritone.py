@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 from typing import Tuple
 
 # simple separation
@@ -44,7 +45,7 @@ def split_tritone(image, midrange=(70, 180), channel_coef='L', c=1):
 
 
 def _split(image: np.ndarray,
-           midrange=((70, 180))
+           midrange: npt.ArrayLike = ((70, 180)),
            ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Split each last dimension of image into three by the midtones
 

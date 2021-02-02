@@ -6,7 +6,10 @@ kelir
 
 Homebrew imagery and color manipulation tools
 
-Roadmap:
-[x] Curves
-[ ] Color Histogram Matching
-[ ] Point-based Color Matching 
+### Features
+- Curves - take points of curve shape and image to be adjusted
+
+### Roadmap
+- [x] Curves
+- [ ] Color Histogram Matching
+- [ ] Point-based Color Matching

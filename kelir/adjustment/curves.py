@@ -1,13 +1,14 @@
 import numpy as np
+import numpy.typing as npt
 from typing import Union, Callable
 from scipy.interpolate import interp1d
 
 
 def adjust_curves(image: np.ndarray,
-                  points: Union[np.ndarray, list],
+                  points: npt.ArrayLike,
                   mode: str = 'precise') -> np.ndarray:
     """Apply curves based on points to vectors
-    
+
     Parameters
     ----------
     image : ndarray
@@ -25,7 +26,7 @@ def adjust_curves(image: np.ndarray,
             'precise' - unclosed, out of x will be filled with first-last
             'closed' - closed, extrapolate to 0,0 and 255,255
             'extrapolate' - unclosed, extrapolate to outer range (then clipped)
-    
+
     Returns
     -------
         copy of input ndarray, each channel applied with each curves
@@ -64,7 +65,7 @@ def adjust_curves(image: np.ndarray,
     return out_image.astype(image.dtype)
 
 
-def _prep_pairs(p: list, close_range: Union[tuple, None] = None) -> np.ndarray:
+def _prep_pairs(p: npt.ArrayLike, close_range: Union[tuple, None] = None) -> np.ndarray:
     """Prepare pair of points"""
     # create and check
     pt = np.asarray(p, dtype=np.uint8)
@@ -92,7 +93,7 @@ def _fit_precise(points: np.ndarray) -> Callable[[np.ndarray], np.ndarray]:
 
 def _fit_closed(points: np.ndarray) -> Callable[[np.ndarray], np.ndarray]:
     """Create functions from interpolating points, closed bounds, extrapolate to bounds"""
-    pt_v = _prep_pairs(points, close_range=(0,255))
+    pt_v = _prep_pairs(points, close_range=(0, 255))
     return interp1d(pt_v[:, 0], pt_v[:, 1],
                     kind=('quadratic' if pt_v.shape[0] > 2 else 'linear'),
                     bounds_error=False, fill_value=(pt_v[0, 1], pt_v[-1, 1]))

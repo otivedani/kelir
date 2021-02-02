@@ -1,6 +1,6 @@
+from kelir import adjustment
 import numpy as np
 from PIL import Image
-from kelir import adjustment
 import unittest
 
 
