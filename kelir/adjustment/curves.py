@@ -6,7 +6,9 @@ from scipy.interpolate import interp1d
 
 def adjust_curves(image: np.ndarray,
                   points: npt.ArrayLike,
-                  mode: str = 'precise') -> np.ndarray:
+                  mode: str = 'precise',
+                  copy: bool = True,
+                  ) -> np.ndarray:
     """Apply curves based on points to vectors
 
     Parameters
@@ -46,7 +48,7 @@ def adjust_curves(image: np.ndarray,
     curves_f = [_CURVES_MODES_[mode](p) for p in points]
 
     # prepare output
-    out_image = image.copy()
+    out_image = image.copy() if copy else image
 
     # case 3 : apply to each channel separately (c0, c1, c2)->(R, G, B)
     # case 1 : apply to all channel equally (c0)->(RGB)
@@ -56,13 +58,13 @@ def adjust_curves(image: np.ndarray,
 
     if (_apply_each):
         for i, curve_f in enumerate(curves_f[:3]):
-            out_image[:, :, i] = np.clip(curve_f(out_image[:, :, i]), 0, 255)
+            out_image[..., i] = np.clip(curve_f(out_image[..., i]), 0, 255)
 
     if (_apply_all):
         out_image = np.clip(curves_f[-1](out_image), 0, 255)
 
     # applied curves
-    return out_image.astype(image.dtype)
+    return out_image
 
 
 def _prep_pairs(p: npt.ArrayLike, close_range: Union[tuple, None] = None) -> np.ndarray:

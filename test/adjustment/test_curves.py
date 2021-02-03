@@ -40,7 +40,13 @@ class TestCurves(unittest.TestCase):
         self.assertTrue(np.all(resimg_1c[self.image == 255] == 255))
 
         # closed mode : pad with 0,0 and 255,255
-        adjustment.curves(self.image, self.points[:-1], mode='closed')
+        image_0 = adjustment.curves(self.image, self.points[:-1], mode='closed')
+        self.assertFalse(np.shares_memory(self.image, image_0))
+
+        # extrapolate mode, no copy
+        image_1 = self.image.reshape(-1,self.image.shape[-1]).copy()
+        image_2 = adjustment.curves(image_1, self.points[:-1], mode='extrapolate', copy=False)
+        self.assertTrue(np.shares_memory(image_1, image_2))
 
     def test_ineq_channel(self):
         with self.assertRaises(AssertionError):
