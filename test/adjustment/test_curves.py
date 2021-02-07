@@ -44,7 +44,7 @@ class TestCurves(unittest.TestCase):
         self.assertFalse(np.shares_memory(self.image, image_0))
 
         # extrapolate mode, no copy
-        image_1 = self.image.reshape(-1,self.image.shape[-1]).copy()
+        image_1 = self.image.reshape(-1, self.image.shape[-1]).copy()
         image_2 = adjustment.curves(image_1, self.points[:-1], mode='extrapolate', copy=False)
         self.assertTrue(np.shares_memory(image_1, image_2))
 
