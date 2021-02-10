@@ -1,0 +1,20 @@
+name: kelir
+channels:
+  - defaults
+dependencies:
+  - python
+  - pillow
+  - notebook
+  - jupyterlab
+  - numpy=1.20.0
+  - opencv
+  - py-opencv
+  - matplotlib
+  - memory_profiler
+  - pip
+  - pip:
+    - flake8==3.8.4
+    - hacking==4.0.0
+    - mccabe==0.6.1
+    - pycodestyle==2.6.0
+    - pyflakes==2.2.0
