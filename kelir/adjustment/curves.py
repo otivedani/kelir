@@ -41,8 +41,10 @@ def adjust_curves(image: np.ndarray,
     }
 
     strat = len(points)
-    assert(strat in _CURVES_STRATS_)
-    assert(mode in _CURVES_MODES_.keys())
+    if strat not in _CURVES_STRATS_:
+        raise ValueError('points length must either in {}'.format(_CURVES_STRATS_))
+    if mode not in _CURVES_MODES_.keys():
+        raise ValueError('curves mode must either in {}'.format(_CURVES_MODES_.keys()))
 
     # points to interpolate
     curves_f = [_CURVES_MODES_[mode](p) for p in points]
@@ -71,7 +73,8 @@ def _prep_pairs(p: npt.ArrayLike, close_range: Union[tuple, None] = None) -> np.
     """Prepare pair of points"""
     # create and check
     pt = np.asarray(p, dtype=np.uint8)
-    assert(pt.shape[-1] == 2)
+    if pt.shape[-1] != 2:
+        raise ValueError('list not containing pairs of points')
     # sort and remove duplicates in x
     _pt, i = np.unique(pt[:, 0], return_index=True)
     pt = pt[i]

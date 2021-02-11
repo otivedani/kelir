@@ -26,6 +26,12 @@ class TestMatch_Hist(unittest.TestCase):
         img_result_1 = matching.hist_match(_img_source, _img_target)
         self.assertIsNot(img_result_1, _img_source)
 
+        matching.hist_match(_img_source, _img_target, precision=999999999)  # safe
+
+        matching.hist_match(_img_source, _img_target, precision=257)
+        matching.hist_match(_img_source, _img_target, precision=259)
+        matching.hist_match(_img_source, _img_target, precision=261)
+
     def test_nocopy(self):
         # numpy array, return same data
         _img_source = self.img_source.copy()
@@ -51,7 +57,7 @@ class TestMatch_Hist(unittest.TestCase):
         self.assertEqual(np.asarray(lut1d_1).shape, (256, 3))
 
     def test_typemismatch(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             matching.hist_match(Image.fromarray(self.img_source), self.img_target)
 
     def tearDown(self):

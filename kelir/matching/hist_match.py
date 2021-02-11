@@ -11,7 +11,8 @@ def hist_match(source: Union[np.ndarray, Image.Image],
                precision: int = 256,
                ) -> Union[np.ndarray, Image.Image]:
     """Match each channel histogram of two PIL.Image or ndarray"""
-    assert(type(source) == type(reference))
+    if type(source) is not type(reference):
+        raise TypeError('source and reference must both either ndarray or PIL.Image')
 
     _source = source.copy() if copy else source
 
@@ -22,13 +23,13 @@ def hist_match(source: Union[np.ndarray, Image.Image],
 
     _refere = np.asarray(reference)
 
-    x_src, y_src = statistic.ecdf(_source)
-    x_ref, y_ref = statistic.ecdf(_refere)
+    # safety countermeasures for exceeding precision
+    _precision = min(precision, _source[..., 0].size, _refere[..., 0].size)
 
-    samples_src = np.asarray([x_src[:, q] for q in _sample_vector(len(y_src), precision=precision)]).swapaxes(1, 0)
-    samples_ref = np.asarray([x_ref[:, q] for q in _sample_vector(len(y_ref), precision=precision)]).swapaxes(1, 0)
+    x_src = statistic.ecdf(_source, reduce_to=_precision)
+    x_ref = statistic.ecdf(_refere, reduce_to=_precision)
 
-    points = [np.dstack(qsqt).squeeze() for qsqt in zip(samples_src, samples_ref)]
+    points = [np.dstack(qsqt).squeeze() for qsqt in zip(x_src, x_ref)]
 
     # apply curves based of points, write in place if possible (to copy or not copy have been decided before).
     target = np.ones((256, 3)) * np.arange(0, 256)[:, None] if to_lut else _source
@@ -38,7 +39,3 @@ def hist_match(source: Union[np.ndarray, Image.Image],
         target = Image.fromarray(target, mode=reference.mode).convert(source.mode)
 
     return target
-
-
-def _sample_vector(x: int, precision: int = 256) -> np.ndarray:
-    return (np.linspace(0, 1, precision, endpoint=False) * x).astype(int)

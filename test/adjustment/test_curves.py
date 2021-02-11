@@ -49,11 +49,11 @@ class TestCurves(unittest.TestCase):
         self.assertTrue(np.shares_memory(image_1, image_2))
 
     def test_ineq_channel(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             adjustment.curves(self.image, self.points[:2])
 
     def test_ineq_dimension(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             points = [
                 [[0, 2, 2], [128, 129, 1]],  # 3D
             ]

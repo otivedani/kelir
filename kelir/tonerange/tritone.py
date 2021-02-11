@@ -31,7 +31,7 @@ def split_tritone(image, midrange=(70, 180), channel_coef='L', c=1):
                  lc[1]*(_in_array[:, 1]**c) +
                  lc[2]*(_in_array[:, 2]**c))**(1/c)
     else:
-        raise ValueError("image channel must be either 1 or 3")
+        raise ValueError('image channel must be either 1 or 3')
 
     p, q = midrange
 
