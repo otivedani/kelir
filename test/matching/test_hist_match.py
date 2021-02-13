@@ -21,16 +21,10 @@ class TestMatch_Hist(unittest.TestCase):
         img_result_2 = matching.hist_match(self.img_source, self.img_source)
         self.assertIsNot(self.img_source, img_result_2)
 
-        _img_source = Image.fromarray(self.img_source)
-        _img_target = Image.fromarray(self.img_target)
-        img_result_1 = matching.hist_match(_img_source, _img_target)
-        self.assertIsNot(img_result_1, _img_source)
-
-        matching.hist_match(_img_source, _img_target, precision=999999999)  # safe
-
-        matching.hist_match(_img_source, _img_target, precision=257)
-        matching.hist_match(_img_source, _img_target, precision=259)
-        matching.hist_match(_img_source, _img_target, precision=261)
+        matching.hist_match(self.img_source, self.img_target, precision=999999999)  # safe
+        matching.hist_match(self.img_source, self.img_target, precision=257)
+        matching.hist_match(self.img_source, self.img_target, precision=259)
+        matching.hist_match(self.img_source, self.img_target, precision=261)
 
     def test_nocopy(self):
         # numpy array, return same data
@@ -40,21 +34,12 @@ class TestMatch_Hist(unittest.TestCase):
 
         img_result_2 = matching.hist_match(_img_source, _img_source, copy=False)
         self.assertIs(img_result_2, _img_source)
-
         del _img_source
-
-        # return copy anyway if both image
-        _img_source_I = Image.fromarray(self.img_source)
-        _img_target_I = Image.fromarray(self.img_target)
-        img_result_1 = matching.hist_match(_img_source_I, _img_target_I, copy=False)
-        self.assertIsNot(img_result_1, _img_source_I)
 
     def test_lut1d(self):
         # numpy array, return LUT
         lut1d = matching.hist_match(self.img_source, self.img_target, to_lut=True)
         self.assertEqual(np.asarray(lut1d).shape, (256, 3))
-        lut1d_1 = matching.hist_match(Image.fromarray(self.img_source), Image.fromarray(self.img_target), to_lut=True)
-        self.assertEqual(np.asarray(lut1d_1).shape, (256, 3))
 
     def test_typemismatch(self):
         with self.assertRaises(TypeError):
