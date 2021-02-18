@@ -9,16 +9,8 @@ install_requires = [
     "numpy>=1.20.1",
     "scipy",
 ]
-
-testing_extras = [
-    "flake8",
-    "hacking",
-    "jupyterlab",
-    "notebook",
-    "matplotlib",
-    "pillow",
-    "memory_profiler",
-]
+extras_require = {"plotting": ["matplotlib", "jupyter"]}
+setup_requires = ["flake8"]
 
 setup(
     name="kelir",
@@ -29,7 +21,7 @@ setup(
     packages=find_packages(),
     python_requires="~=3.7",
     install_requires=install_requires,
-    extras_requires=[
-        "testing": testing_extras
-    ]
+    extras_require=extras_require,
+    setup_requires=setup_requires,
+    test_suite="pytest"
 )
