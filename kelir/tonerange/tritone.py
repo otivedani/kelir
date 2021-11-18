@@ -7,26 +7,32 @@ from typing import Tuple
 # TODO(otivedani) grayscale mode to module
 # TODO(otivedani) overlap options, blur, mask or applied
 
-RGB2L_methods = {
+RGB2L_METHODS = {
             'L': [0.299, 0.587, 0.114],  # ITU-R 601-2 Luma
+            'L2': [0.2126, 0.7152, 0.0722],
             'Avg': [1/3, 1/3, 1/3],
-            'L2': [0.2126, 0.7152, 0.0722]
         }
 
 
 # TODO(otivedani) : to be deprecated, remain for backward compatibility
-def split_tritone(image, midrange=(70, 180), channel_coef='L', c=1):
+def split_tritone(image, 
+                  midrange: Tuple[int, int] = (70, 180), 
+                  luma_method: str = 'L', 
+                  c: float = 1):
     """Three-way tone range : Shadows, Midtones, Highlights
 
     Assuming last dimension of image is the channel.
     """
+    if luma_method not in RGB2L_METHODS.keys():
+        raise ValueError(f'Unknown luma conversion method "{luma_method}"')
+
     n_channel = image.shape[-1]
     _in_array = image.reshape(-1, n_channel)
 
     if n_channel == 1:
         img_L = _in_array[:, 0]
     elif n_channel == 3:
-        lc = RGB2L_methods[channel_coef]
+        lc = RGB2L_METHODS[luma_method]
         img_L = (lc[0]*(_in_array[:, 0]**c) +
                  lc[1]*(_in_array[:, 1]**c) +
                  lc[2]*(_in_array[:, 2]**c))**(1/c)
